@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crud_fire/src/common/components/drawer.dart';
 import 'package:crud_fire/src/common/components/text_field.dart';
 import 'package:crud_fire/src/common/components/wall_post.dart';
+import 'package:crud_fire/src/profile/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -38,6 +40,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  //go to profile screen
+  void goToProfilePage() {
+    //pop menu drawer
+    Navigator.pop(context);
+    //got to profile screen
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileScreen(),
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.logout),
           ),
         ],
+      ),
+      drawer: MyDrawer(
+        onProfileTap: goToProfilePage,
+        onSingOut: singOut,
       ),
       body: Center(
         child: Column(

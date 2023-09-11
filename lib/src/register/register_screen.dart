@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crud_fire/src/common/components/button.dart';
 import 'package:crud_fire/src/common/components/text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,9 +35,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailTextController.text,
-          password: passwordTextController.text);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailTextController.text,
+              password: passwordTextController.text);
+
+      //after creating the user, create a new document in cloud firestore called Users
+      FirebaseFirestore.instance
+          .collection("Users")
+          .doc(userCredential.user!.email)
+          .set({
+        'username': emailTextController.text.split('@')[0],
+        'bio': 'Empty bio...' //Initally empty bio
+        // add any additional fields as needed
+      });
+
       //pop loading circle
       if (context.mounted) Navigator.pop(context);
     } on FirebaseAuthException catch (e) {

@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 10,
                 ),
                 Text(
-                  'Bem-vendo de volta, sentimos a sua falta!',
+                  'Bem-vindo de volta, sentimos a sua falta!',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[700],
