@@ -1,4 +1,6 @@
 import 'package:crud_fire/src/auth/auth.dart';
+import 'package:crud_fire/src/themes/dark_theme.dart';
+import 'package:crud_fire/src/themes/light_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -17,11 +19,11 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.system,
-      home: const AuthScreen(),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
+      home: const AuthScreen(),
     );
   }
 }

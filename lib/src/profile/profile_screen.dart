@@ -58,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     //Update to Firestore
-    if (newValue.trim().length > 0) {
+    if (newValue.trim().isNotEmpty) {
       await usersCollections.doc(currentUser?.email).update({field: newValue});
     }
   }
@@ -66,12 +66,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: const Text('Perfil'),
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: Colors.grey[900],
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: usersCollections.doc(currentUser!.email).snapshots(),
@@ -118,16 +115,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 //username
                 MyTextBox(
-                  text: '@${userData['username']}',
+                  text: '${userData["username"]}',
                   sectionName: 'Nome',
-                  onPressed: () => editField('Nome'),
+                  onPressed: () => editField('username'),
                 ),
 
                 //bio
                 MyTextBox(
                   text: userData['bio'],
                   sectionName: 'Bio',
-                  onPressed: () => editField('Bio'),
+                  onPressed: () => editField('bio'),
                 ),
 
                 const SizedBox(

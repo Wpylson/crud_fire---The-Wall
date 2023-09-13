@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crud_fire/src/common/components/drawer.dart';
 import 'package:crud_fire/src/common/components/text_field.dart';
 import 'package:crud_fire/src/common/components/wall_post.dart';
+import 'package:crud_fire/src/helper/helper_methods.dart';
 import 'package:crud_fire/src/profile/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,18 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: const Text('The Wall'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.grey[900],
-        actions: [
-          IconButton(
-            onPressed: () => singOut(),
-            icon: const Icon(Icons.logout),
-          ),
-        ],
       ),
       drawer: MyDrawer(
         onProfileTap: goToProfilePage,
@@ -81,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     .collection("User Posts")
                     .orderBy(
                       'Timestamp',
-                      descending: false,
+                      descending: true,
                     )
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -96,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           user: post['UserEmail'],
                           postId: post.id,
                           likes: List<String>.from(post['Likes'] ?? []),
+                          time: formatDate(post['Timestamp']),
                         );
                       },
                     );
@@ -131,7 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   //Post button
                   IconButton(
                     onPressed: postMessage,
-                    icon: const Icon(Icons.arrow_circle_up),
+                    icon: Icon(
+                      Icons.arrow_circle_up,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                     iconSize: 40,
                   )
                 ],
