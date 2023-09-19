@@ -124,9 +124,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   //Post button
                   IconButton(
                     onPressed: postMessage,
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.arrow_circle_up,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Colors.grey,
                     ),
                     iconSize: 40,
                   )

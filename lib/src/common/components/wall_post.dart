@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crud_fire/src/common/components/comment.dart';
 import 'package:crud_fire/src/common/components/comment_button.dart';
+import 'package:crud_fire/src/common/components/delete_button.dart';
 import 'package:crud_fire/src/common/components/like_button.dart';
 import 'package:crud_fire/src/helper/helper_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,6 +33,8 @@ class _WallPostState extends State<WallPost> {
   bool isLiked = false;
   final _commentTextController = TextEditingController();
 
+  final db = FirebaseFirestore.instance;
+
   @override
   void initState() {
     super.initState();
@@ -45,8 +48,7 @@ class _WallPostState extends State<WallPost> {
     });
 
     //Access the document is Firebase
-    DocumentReference postRef =
-        FirebaseFirestore.instance.collection('User Posts').doc(widget.postId);
+    DocumentReference postRef = db.collection('User Posts').doc(widget.postId);
     if (isLiked) {
       postRef.update({
         'Likes': FieldValue.arrayUnion([currentUser?.email])
@@ -57,6 +59,8 @@ class _WallPostState extends State<WallPost> {
       });
     }
   }
+
+  //Get commentarys from post
 
   //add a comment
   void addComment(String commentText) {
@@ -70,6 +74,52 @@ class _WallPostState extends State<WallPost> {
       "CommentedBy": currentUser!.email,
       "CommentTime": Timestamp.now(), // remember to format this when displaying
     });
+  }
+
+  //Delete post method
+  void deletePost() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Apagar Post"),
+        content: const Text("Tens a certeza que desejas apagar esse post?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () async {
+              //Delete comments from firestore first
+              final commentDocs = await db
+                  .collection("User Posts")
+                  .doc(widget.postId)
+                  .collection("Comments")
+                  .get();
+              for (var doc in commentDocs.docs) {
+                await db
+                    .collection("User Posts")
+                    .doc(widget.postId)
+                    .collection("Comments")
+                    .doc(doc.id)
+                    .delete();
+              }
+
+              //Them delete the post
+              db
+                  .collection("User Posts")
+                  .doc(widget.postId)
+                  .delete()
+                  .then((value) => print("post deleted"))
+                  .catchError((error) => print("Erro ao apagar post: $error"));
+
+              Navigator.pop(context);
+            },
+            child: const Text("Apagar"),
+          )
+        ],
+      ),
+    );
   }
 
   // show a dialog box for adding comment
@@ -118,27 +168,40 @@ class _WallPostState extends State<WallPost> {
           //Wallpost
           const SizedBox(width: 15),
           //message and user email
-          Column(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //Message
-              Text(widget.message),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //Message
+                  Text(widget.message),
 
-              const SizedBox(
-                height: 10,
+                  const SizedBox(
+                    height: 10,
+                  ),
+
+                  //User
+                  Row(
+                    children: [
+                      Text(
+                        widget.user,
+                        style: TextStyle(color: Colors.grey[500]),
+                      ),
+                      Text('  . ', style: TextStyle(color: Colors.grey[500])),
+                      Text(widget.time,
+                          style: TextStyle(color: Colors.grey[500])),
+                    ],
+                  )
+                ],
               ),
 
-              //User
-              Row(
-                children: [
-                  Text(
-                    widget.user,
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                  Text('  . ', style: TextStyle(color: Colors.grey[500])),
-                  Text(widget.time, style: TextStyle(color: Colors.grey[500])),
-                ],
-              )
+              //Delete button
+              if (widget.user == currentUser!.email)
+                DeleteButton(
+                  onTap: deletePost,
+                ),
             ],
           ),
           const SizedBox(height: 10),
@@ -191,7 +254,7 @@ class _WallPostState extends State<WallPost> {
 
           // comments under the post
           StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
+            stream: db
                 .collection("User Posts")
                 .doc(widget.postId)
                 .collection("Comments")
